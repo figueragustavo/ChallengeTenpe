@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: tenpe
+  datasource:
+    url: jdbc:postgresql://postgresql-figueragustavo.alwaysdata.net:5432/figueragustavo_tenpe
+    username: figueragustavo_tenpee
+    password: dbtenpe
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 30000
+      pool-name: HikariPool-1
+      max-lifetime: 1800000
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  cache:
+    type: simple
+    cache-names:
+      - percentCache
+    simple:
+      time-to-live: 1800s # 30 minutos
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    endpoint:
+      health:
+        show-details: always
+      info:
+        enabled: true
+  info:
+    app:
+      name: tenpe
+      description: "Tenpo API"
+      version: 1.0.0
+percent:
+    url: http://demo2008646.mockable.io
+    endpoint: /porcentaje
+logging:
+  level:
+    org.springframework: INFO
+    org.hibernate: INFO
+    com.challenge.tenpe: DEBUG
