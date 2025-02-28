@@ -5,6 +5,7 @@ import com.challenge.tenpe.dto.RequestTrDto;
 import com.challenge.tenpe.dto.ResponseDto;
 import com.challenge.tenpe.dto.Transaction;
 import com.challenge.tenpe.entity.TransactionEntity;
+import com.challenge.tenpe.exception.PercentException;
 import com.challenge.tenpe.feign.PorcentFeign;
 import com.challenge.tenpe.repository.TenpeRepository;
 import com.challenge.tenpe.util.Util;
@@ -24,22 +25,27 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceImpl implements com.challenge.tenpe.service.Service {
 
-    @Autowired
     private TenpeRepository repository;
     
-    @Autowired
     private PorcentFeign porcentFeign;
-
-    @Autowired
+    
     private CacheManager cacheManager;
 
-    @Async
+    @Autowired
+    public ServiceImpl(TenpeRepository repository, PorcentFeign porcentFeign, CacheManager cacheManager) {
+		super();
+		this.repository = repository;
+		this.porcentFeign = porcentFeign;
+		this.cacheManager = cacheManager;
+	}
+
+	@Async
     public void saveTransactionAsync(TransactionEntity entity) {
         repository.save(entity);
     }
 
     @Override
-    public List<Transaction> getTransactions(Transaction tr) {
+    public Transaction getTransactions(Transaction tr) {
     	RequestTrDto req = (RequestTrDto) tr.getRequest();
         Pageable pageable = PageRequest.of(req.getPage(), req.getSize());
         
@@ -49,16 +55,27 @@ public class ServiceImpl implements com.challenge.tenpe.service.Service {
 		for(TransactionEntity transaction : (List<TransactionEntity>) pagedResult.getContent()) {
 			transactions.add(new Transaction(transaction));
 		}
-        return transactions;
+		tr.setResponse(transactions);
+    	tr.setDescriptionError("OK");
+    	tr.setEndDate(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+    	saveTransactionAsync(mapToEntity(tr));
+    	
+        return tr;
     }
 
     @Override
     public Transaction sumaPorcentual(Transaction tr) {
-    	double result =  this.sumaConPorcentaje((RequestDto)tr.getRequest(), getPercent());
-    	tr.setResponse(ResponseDto.builder().result(result).build());
-    	tr.setDescriptionError("OK");
-    	tr.setEndDate(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
-    	saveTransactionAsync(mapToEntity(tr));
+    	try {
+    		double result =  this.sumaConPorcentaje((RequestDto)tr.getRequest(), getPercent());
+        	tr.setResponse(ResponseDto.builder().result(result).build());
+        	tr.setDescriptionError("OK");
+        	tr.setEndDate(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+        	saveTransactionAsync(mapToEntity(tr));
+		} catch (PercentException e) {
+			e.setTr(tr);
+			throw e;
+		}
+    	
         return tr;
     }
 
@@ -69,7 +86,7 @@ public class ServiceImpl implements com.challenge.tenpe.service.Service {
     }
 
     @Cacheable(value = "percentCache", key = "'getPercent'")
-    private Double getPercent() {
+    public Double getPercent() {
         int intentos = 0;
         while (intentos < 3) {
             try {
@@ -79,14 +96,12 @@ public class ServiceImpl implements com.challenge.tenpe.service.Service {
                 intentos++;
             }
         }
-//        if (intentos == 3) {
             var cache = cacheManager.getCache("percentCache");
             if (cache != null && cache.get("getPercent") != null) {
                 return (double) cache.get("getPercent").get();
             } else {
-                throw new RuntimeException("No se pudo obtener el porcentaje y no hay valor en caché");
+                throw new PercentException(null,"No se pudo obtener el porcentaje y no hay valor en caché");
             }
-//        }
     }
     
     public TransactionEntity mapToEntity(Transaction dto) {

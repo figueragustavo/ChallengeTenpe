@@ -7,6 +7,8 @@ import com.challenge.tenpe.dto.ResponseDto;
 import com.challenge.tenpe.dto.Transaction;
 import com.challenge.tenpe.service.Service;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -30,12 +32,14 @@ public class ControllerImpl implements Controller {
 
     @Autowired
     public ControllerImpl(Service service) {
+    	super();
         this.service = service;
     }
 
     @Override
+    @Valid
     @PostMapping("/sumaPorcentual")
-    public ResponseEntity<ResponseDto> sumaPorcentual(@RequestBody RequestDto request) {
+    public ResponseEntity<ResponseDto> sumaPorcentual(@RequestBody @NotNull RequestDto request) {
     	var numberProcess = String.format("%05d", count.incrementAndGet());
     	log.info("Inicio de proceso suma: #"+numberProcess);
     	Transaction tr = new Transaction();
@@ -51,12 +55,12 @@ public class ControllerImpl implements Controller {
 	@GetMapping("/pagingTransactions")
 	public ResponseEntity<List<Transaction>> getTransacions(@RequestBody RequestTrDto request) {
 		var numberProcess = String.format("%05d", count.incrementAndGet());
-    	log.info("Inicio de proceso suma: #"+numberProcess);
+    	log.info("Inicio de proceso Transacciones: #"+numberProcess);
     	Transaction tr = new Transaction();
     	tr.setStartDate(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
     	tr.setEndpoint("/pagingTransactions");
     	tr.setRequest(request);
-		var trs = service.getTransactions(tr);
-		return new ResponseEntity<>(trs, HttpStatus.OK);
+		tr = service.getTransactions(tr);
+		return new ResponseEntity<>((List<Transaction>)tr.getResponse(), HttpStatus.OK);
 	}
 }

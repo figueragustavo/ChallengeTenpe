@@ -8,6 +8,7 @@ import com.challenge.tenpe.dto.Transaction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public interface Controller {
             @ApiResponse(responseCode = "400", description = "Petición inválida"),
             @ApiResponse(responseCode = "500", description = "Error interno")
     })
-    public  ResponseEntity<ResponseDto> sumaPorcentual(@RequestBody RequestDto request);
+    public  ResponseEntity<ResponseDto> sumaPorcentual(@RequestBody @NotNull RequestDto request);
     
     public ResponseEntity<List<Transaction>> getTransacions(@RequestBody RequestTrDto request);
 
