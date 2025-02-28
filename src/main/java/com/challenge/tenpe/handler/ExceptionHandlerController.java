@@ -2,6 +2,7 @@ package com.challenge.tenpe.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -23,6 +24,16 @@ public class ExceptionHandlerController {
 		 tr.setDescriptionError(ex.getMessage());
 		 log.error(ex.getMessage());
 		 return new ResponseEntity<>(tr, HttpStatus.INTERNAL_SERVER_ERROR);
+	 }
+	 @ExceptionHandler(HttpMessageNotReadableException.class)
+	 public ResponseEntity<Transaction> handleBadRequest(HttpMessageNotReadableException ex) {
+		 ex.printStackTrace();
+		 var tr = new Transaction();
+		 tr.setStartDate(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+		 tr.setEndDate(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+		 tr.setDescriptionError(ex.getMessage());
+		 log.error(ex.getMessage());
+		 return new ResponseEntity<>(tr, HttpStatus.BAD_REQUEST);
 	 }
 	 
 	 @ExceptionHandler(PercentException.class)

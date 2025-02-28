@@ -16,6 +16,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
+import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -91,6 +93,8 @@ public class ServiceImpl implements com.challenge.tenpe.service.Service {
         while (intentos < 3) {
             try {
                 var porcentaje = porcentFeign.getPercent().getPorcentaje();
+                ConcurrentMapCache cache = new ConcurrentMapCache("percentCache");
+                cache.put("getPercent", new SimpleValueWrapper(porcentaje));
                 return porcentaje;
             } catch (Exception e) {
                 intentos++;

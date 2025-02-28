@@ -35,7 +35,7 @@ public class RateLimitFilter implements Filter {
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		String clientIp = httpRequest.getRemoteAddr();
 		String uri = httpRequest.getRequestURI();
-		if (!uri.contains("swagger") && !uri.contains("api-docs")) {
+		if (!uri.contains("swagger") && !uri.contains("api-docs") && !uri.contains("pagingTransactions")) {
 			long currentTime = System.currentTimeMillis();
 			requestTimes.putIfAbsent(clientIp, currentTime);
 			requestCounts.putIfAbsent(clientIp, 0);
