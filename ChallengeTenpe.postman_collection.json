@@ -1,0 +1,69 @@
+{
+	"info": {
+		"_postman_id": "bbc88a50-acae-4194-9192-9abd7c8e2b16",
+		"name": "ChallengeTenpe",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6137630"
+	},
+	"item": [
+		{
+			"name": "getTransactions",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"page\": 0,\r\n  \"size\": 10\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/pagingTransactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pagingTransactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sumaPorcentual",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"number1\": 20,\r\n  \"number2\": 20\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sumaPorcentual",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sumaPorcentual"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
